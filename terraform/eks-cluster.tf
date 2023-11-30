@@ -7,14 +7,15 @@ module "eks" {
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
-  cluster_endpoint_public_access = true
+  cluster_endpoint_public_access = true #on peut acceder à ce endpoint via le kubeconfigfile
+
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
 
   }
 
-  eks_managed_node_groups = {
+  eks_managed_node_groups = { # autoscaling nodes
     one = {
       name = "node-group-1"
 
