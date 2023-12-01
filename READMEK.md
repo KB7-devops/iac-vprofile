@@ -13,3 +13,7 @@ Une fois que c'est tester et valider, on merge la branche test à main. Ce qui v
 - Copier dans le Github Secret l'access key, afin que Github puisse upload le code sur EKS.
 - Créer un bucket S3, pour stocker les informations Terraform (le state -> bucket_tf_state)
 - Copier le nom du bucket dans le Github Secret. (BUCKET_TF_STATE: nom_bucket).
+
+## Goal
+
+Le code Terraform va set up l'infra VPC et EKS.
