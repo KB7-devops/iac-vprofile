@@ -80,3 +80,53 @@ jobs:
        - name: Install Ingress controller
          if: steps.apple.outcome == 'success' && steps.getconfig.outcome == 'success'
          run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
+
+
+
+
+Je vais expliquer chaque partie de votre fichier de configuration GitLab CI ligne par ligne :
+
+1. `name: "Vprofile IAC"` : Ceci définit le nom de votre pipeline GitLab CI. Vous pouvez personnaliser ce nom selon vos préférences.
+
+2. `on:` : Cette section spécifie quand la pipeline doit être déclenchée en fonction d'événements particuliers.
+
+   - `push:` : La pipeline est déclenchée lorsqu'un nouveau commit est poussé vers les branches "main" ou "stage".
+     - `branches:` : Les branches pour lesquelles la pipeline doit être déclenchée.
+     - `paths:` : La pipeline est déclenchée uniquement si les changements sont dans des fichiers situés dans le répertoire "terraform/".
+
+   - `pull_request:` : La pipeline est également déclenchée lorsqu'une pull request (demande de fusion) est créée sur la branche "main".
+     - `branches:` : Les branches pour lesquelles la pipeline doit être déclenchée.
+     - `paths:` : La pipeline est déclenchée uniquement si les changements sont dans des fichiers situés dans le répertoire "terraform/".
+
+3. `env:` : Cette section définit des variables d'environnement que vous pouvez utiliser dans votre pipeline. Ces variables sont généralement utilisées pour stocker des informations sensibles telles que les clés d'accès AWS.
+
+   - `AWS_ACCESS_KEY_ID` : Stocke la clé d'accès AWS à utiliser pour les déploiements.
+   - `AWS_SECRET_ACCESS_KEY` : Stocke la clé secrète AWS correspondante.
+   - `BUCKET_TF_STATE` : Stocke le nom du bucket S3 où Terraform stockera son état.
+   - `AWS_REGION` : Stocke la région AWS à utiliser.
+   - `EKS_CLUSTER` : Stocke le nom du cluster EKS cible.
+
+4. `jobs:` : Cette section définit les étapes de votre pipeline.
+
+   - `terraform:` : C'est le nom du job. Il sera exécuté dans un environnement "ubuntu-latest".
+
+     - `name: "Apply terraform code changes"` : Nom du job pour une meilleure lisibilité.
+     - `runs-on: ubuntu-latest` : Spécifie l'environnement d'exécution.
+     - `defaults:` : Définit des valeurs par défaut pour toutes les étapes suivantes du job.
+     - `run:` : Configure les paramètres d'exécution par défaut pour les étapes suivantes.
+
+5. `steps:` : Cette section définit les étapes individuelles du job "terraform".
+
+   - `Checkout source code` : Étape pour récupérer le code source du dépôt.
+   - `Setup Terraform with specified version on the runner` : Étape pour installer Terraform avec une version spécifique (commentée dans votre exemple).
+   - `Terraform init` : Étape pour initialiser Terraform et configurer le backend.
+   - `Terraform format` : Étape pour formater le code Terraform.
+   - `Terraform validate` : Étape pour valider la syntaxe du code Terraform.
+   - `Terraform plan` : Étape pour générer un plan Terraform et le sauvegarder dans un fichier.
+   - `Terraform plan status` : Étape qui vérifie si l'étape précédente a échoué et sort avec une erreur si c'est le cas.
+   - `Terraform Apply` : Étape qui déploie l'infrastructure Terraform si le push est effectué sur la branche "main".
+   - `Configure AWS credentials` : Étape pour configurer les informations d'identification AWS.
+   - `Get Kube config file` : Étape pour obtenir le fichier de configuration Kubernetes.
+   - `Install Ingress controller` : Étape pour installer le contrôleur Ingress Kubernetes sur AWS, mais uniquement si les étapes précédentes ont réussi.
+
+Cela explique chaque ligne de votre fichier de configuration GitLab CI. Ce fichier configure une pipeline qui gère le code Terraform et déploie sur un cluster EKS, en tenant compte des événements de push et des demandes de fusion sur la branche "main".
